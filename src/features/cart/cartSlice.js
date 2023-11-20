@@ -1,12 +1,38 @@
-import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import cartItems from '../../cartItems';
+import { openModal } from '../modal/modalSlice';
+
+const url = 'https://course-api.com/react-useReducer-cart-project';
 
 const initialState = {
-  cartItems: cartItems,
+  cartItems: [],
   amount: 4,
   total: 0,
   isLoading: true,
 };
+
+// * fetch version
+// export const getCartItems = createAsyncThunk('cart/getCartItems', () => {
+//   return fetch(url)
+//     .then(resp => resp.json())
+//     .catch(error => console.log(error));
+// });
+
+export const getCartItems = createAsyncThunk(
+  'cart/getCartItems',
+  async (_, thunkAPI) => {
+    try {
+      // console.log(thunkAPI.getState());
+      // console.log(thunkAPI.dispatch(openModal()));
+
+      const response = await axios(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue('There was an error...');
+    }
+  }
+);
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -38,6 +64,34 @@ const cartSlice = createSlice({
       state.total = total;
     },
   },
+  extraReducers: builder => {
+    builder
+      .addCase(getCartItems.pending, state => {
+        state.isLoading = true;
+      })
+      .addCase(getCartItems.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.cartItems = action.payload;
+      })
+      .addCase(getCartItems.rejected, state => {
+        state.isLoading = false;
+      });
+  },
+
+  // * old way
+  // extraReducers: {
+  //   [getCartItems.pending]: state => {
+  //     state.isLoading = true;
+  //   },
+  //   [getCartItems.fulfilled]: (state, action) => {
+  //     state.isLoading = false;
+  //     state.cartItems = action.payload;
+  //   },
+  //   [getCartItems.rejected]: (state, action) => {
+  //     console.log(action.payload);
+  //     state.isLoading = false;
+  //   },
+  // },
 });
 
 export const { clearCart, removeItem, increase, decrease, calculateTotals } =

@@ -8,4 +8,4 @@ I created this application to learn Redux Toolkit. It is a simple application pr
 
 ## Screenshots
 
-![App Screenshot](https://thumbs2.imgbox.com/8c/07/Dq7GjSGy_t.png)
+![App Screenshot](https://i.imgur.com/jaA2gQV.png)
